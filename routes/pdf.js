@@ -1,17 +1,18 @@
-var express = require("express");
+var express = require('express');
 var router = express.Router();
-var fs = require("fs/promises");
+const axios = require('axios');
 
-async function handleRead() {
-  const filePath = "public/pdf/ProofOfTransfer.pdf";
-  const fileData = await fs.readFile(filePath, {});
-
-  return fileData;
+async function handleRead(dldUrl) {
+  const resp = await axios.get(dldUrl, { responseType: 'blob' });
+  console.log(resp)
+  const pdfBuff = Buffer.from(resp.data).toString('base64');
+  console.log(pdfBuff)
+  return pdfBuff;
 }
-/* Get Requested Pdf */
-router.get("/", function (req, res, next) {
-  const resData = handleRead();
-  resData.then((data) => {
+/* Post Requested Pdf */
+router.post('/', function (req, res, next) {
+  const dldUrl = req.body.dldUrl;
+  handleRead(dldUrl).then((data) => {
     res.json(data);
   });
 });
