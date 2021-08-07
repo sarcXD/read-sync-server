@@ -62,6 +62,60 @@ router.post("/new_pdf", function (req, res, next) {
   });
 });
 
+// pdf_entry = {
+//   id: '',
+//   curr_page: 1,
+//   pdf_link: '',
+//   email: '',
+//   last_updated: '',
+// }
+/**
+ * Function updates existing record opened_pdf table for newly opened pdf
+ * @param {pdfDetails} Object containing details to update or create new record using
+ * @returns {statusCode} http status of record entry
+ */
+ async function updateOpenedPdf(pdfDetails) {
+  const pdf_link = pdfDetails.pdfLink;
+  const email = pdfDetails.email;
+  const currPage = 1;
+  if (email?.length && pdf_link?.length) {
+    const cDate = new Date();
+    const last_updated = cDate.toISOString();
+    return db
+      .none(
+        "UPDATE opened_pdfs SET pdf_link=$1, curr_page=$2, email=$3, last_updated=$4 \
+        WHERE email = $3;",
+        [pdf_link, currPage, email, last_updated]
+      )
+      .then(() => {
+        // 200 OK
+        return { status: "200 OK" };
+      })
+      .catch((error) => {
+        console.log("ERROR:", error);
+        return { status: "500 Internal Server Error" };
+      });
+  }
+  return {
+    status: "406 Not Acceptable",
+    details: "Missing Email or PdfLink entry",
+  };
+}
+
+/* Post Update Opened Pdf */
+/**
+ * pdfDetails:
+ * email: Email id of user
+ * pdfLink: Path of new opened pdf
+ */
+ router.post("/update_pdf_entry", function (req, res, next) {
+  const pdfDetails = req.body.pdfDetails;
+  console.log("pdfDetails | Update Pdf Entry", pdfDetails);
+  updateOpenedPdf(pdfDetails).then((status) => {
+    res.json(status);
+  });
+});
+
 // user_entry = {
 //   email: '',
 //   display_name: '',
