@@ -17,8 +17,15 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 // cors handling
-var corsOptions = {
-  origin: env.defaultConfig.origin,
+const corsOptions = {
+  // origin: env.defaultConfig.origin,
+  origin: (origin, callback) => {
+    if (env.whitelist.indexOf(origin) !== -1) {
+      callback(null,true);
+    } else {
+      callback(new Error());
+    }
+  },
   optionsSuccessStatus: 200,
 };
 
