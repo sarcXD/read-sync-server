@@ -1,10 +1,10 @@
 var express = require("express");
 var router = express.Router();
+const env = require("../config/envConfig");
 var pgp = require("pg-promise")(/* options */);
-var db = pgp("postgres://readSyncDB:root@localhost:5432/readSyncDB");
+var db = pgp(env.defaultConfig.dbUrl);
 const { randomFillSync } = require("crypto");
 const { Buffer } = require("buffer");
-
 // pdf_entry = {
 //   id: '',
 //   curr_page: 1,

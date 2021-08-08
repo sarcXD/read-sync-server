@@ -9,6 +9,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var pdfRouter = require("./routes/pdf");
 
+var env = require("./config/envConfig");
 var app = express();
 
 // view engine setup
@@ -17,7 +18,7 @@ app.set("view engine", "jade");
 
 // cors handling
 var corsOptions = {
-  origin: "http://localhost:3000",
+  origin: env.defaultConfig.origin,
   optionsSuccessStatus: 200,
 };
 
