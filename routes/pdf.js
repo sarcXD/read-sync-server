@@ -116,6 +116,53 @@ router.post("/new_pdf", function (req, res, next) {
   });
 });
 
+/**
+ * Function saves state of opened pdf (page number)
+ * @param {saveDetails} Object containing details to save pdf state using
+ * @returns {statusCode} http status of record entry
+ */
+ async function saveOpenedPdf(saveDetails) {
+  const pdf_link = saveDetails.pdfLink;
+  const email = saveDetails.email;
+  const currPage = saveDetails.currPage;
+  if (email?.length && pdf_link?.length && currPage) {
+    const cDate = new Date();
+    const last_updated = cDate.toISOString();
+    return db
+      .none(
+        "UPDATE opened_pdfs SET curr_page=$2, last_updated=$4 \
+        WHERE email = $3 AND pdf_link = $1;",
+        [pdf_link, currPage, email, last_updated]
+      )
+      .then(() => {
+        // 200 OK
+        return { status: "200 OK" };
+      })
+      .catch((error) => {
+        console.log("ERROR:", error);
+        return { status: "500 Internal Server Error" };
+      });
+  }
+  return {
+    status: "406 Not Acceptable",
+    details: "Missing Email, Page Num or PdfLink entry",
+  };
+}
+
+/** Post Save Opened pdf state 
+ * saveDetails:
+ * email: Email id of user
+ * pdfLink: path of pdf user is saving
+ * currPage: page num user is read so far to
+*/
+router.post("/save", function(req,res,next) {
+  const saveDetails = req.body.saveDetails;
+  console.log("saveDetails | Save Opened pdf", saveDetails);
+  saveOpenedPdf(saveDetails).then((status) => {
+    res.json(status);
+  });
+});
+
 // user_entry = {
 //   email: '',
 //   display_name: '',
@@ -185,8 +232,10 @@ async function fetchOpenedPdf(email) {
         email,
       ])
       .then((fetchedState) => {
-        if (fetchedState) {
-          return {currPage: fetchedState?.curr_page, pdfLink: fetchedState?.pdf_link};
+        console.log(fetchedState);
+        if (fetchedState.length) {
+          const statusRow = fetchedState[0];
+          return {currPage: statusRow?.curr_page, pdfLink: statusRow?.pdf_link};
         } else {
           return {}
         }
