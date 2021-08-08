@@ -8,7 +8,7 @@ const devConfig = {
     origin: "readsyncpdf.firebaseapp.com",
 }
 
-const defaultConfig = localConfig;
+const defaultConfig = devConfig;
 
 exports.localConfig = localConfig;
 exports.devConfig = devConfig;
