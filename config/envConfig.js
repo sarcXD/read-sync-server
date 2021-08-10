@@ -10,7 +10,7 @@ const devConfig = {
 }
 
 const whitelistOrigins = ['https://readsyncpdf.web.app','http://localhost:3000'];
-const defaultConfig = devConfig;
+const defaultConfig = localConfig;
 
 exports.localConfig = localConfig;
 exports.devConfig = devConfig;
